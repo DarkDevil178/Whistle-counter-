@@ -196,34 +196,33 @@ async function idbDel(k){const d=await idb();return new Promise((res,rej)=>{cons
 /*DETECTOR_START*/
 class Detector{
   constructor(){this.reset();}
-  reset(){this.floor=null;this.state=0;this.aboveSince=null;this.belowSince=null;this.burstStart=0;this.lastEnd=-1e9;}
+  reset(){this.floor=null;this.state=0;this.acc=0;this.last=null;this.belowSince=null;this.burstStart=0;this.lastEnd=-1e9;}
   margin(sens){return 26-0.2*sens;}
-  // ok = false when the sound does not match the learned whistle shape
+  // ok = false when the sound does not match the learned whistle
   feed(db,now,sens,ok){
     if(ok===undefined)ok=true;
     if(this.floor===null)this.floor=db;
+    const dt=this.last===null?50:Math.min(200,now-this.last);this.last=now;
     const thresh=Math.max(this.floor+this.margin(sens),-75);
     const above=db>thresh&&ok;
     let ev=null;
     if(this.state===0){
-      if(above){
-        if(this.aboveSince===null)this.aboveSince=now;
-        if(now-this.aboveSince>=300){
-          this.state=1;this.belowSince=null;this.burstStart=now;
-          if(now-this.lastEnd>=1500)ev="whistle";
-        }
-      }else{
-        this.aboveSince=null;
-        const k=db>this.floor?(db>thresh?0.002:0.01):0.1;
+      // leaky timer: gaps (e.g. from talking) only drain it at half speed
+      this.acc=above?this.acc+dt:Math.max(0,this.acc-dt*0.5);
+      if(this.acc>=300){
+        this.state=1;this.belowSince=null;this.burstStart=now;this.acc=0;
+        if(now-this.lastEnd>=1500)ev="whistle";
+      }else if(!above){
+        const k=db>this.floor?(db>thresh?0.002:0.004):0.1;
         this.floor+=k*(db-this.floor);
       }
     }else{
       if(db<thresh-3||!ok){
         if(this.belowSince===null)this.belowSince=now;
-        if(now-this.belowSince>=500){this.state=0;this.lastEnd=now;this.aboveSince=null;this.belowSince=null;}
+        if(now-this.belowSince>=800){this.state=0;this.lastEnd=now;this.acc=0;this.belowSince=null;}
       }else{
         this.belowSince=null;
-        if(now-this.burstStart>40000){this.floor=db;this.state=0;this.lastEnd=now;this.aboveSince=null;}
+        if(now-this.burstStart>40000){this.floor=db;this.state=0;this.lastEnd=now;this.acc=0;}
       }
     }
     return {ev,floor:this.floor,thresh,hot:above};
@@ -292,6 +291,24 @@ function shapeOf(bp){
   return v;
 }
 function corr(bp){const v=shapeOf(bp),p=S.prof.shape;let d=0;for(let i=0;i<NB;i++)d+=v[i]*p[i];return d;}
+const bandHz=i=>F0*Math.pow(F1/F0,i/NB);
+function profIdx(){
+  let a=-1,b=-1;
+  for(let i=0;i<NB;i++){if(bandHz(i+1)>S.prof.lo+2&&bandHz(i)<S.prof.hi-2){if(a<0)a=i;b=i;}}
+  return [Math.max(a,0),Math.max(b,0)];
+}
+// how much louder the learned band is than everything else (dB)
+function dominance(bp,a,b){
+  let inn=0,ni=0,out=0,no=0;
+  for(let i=0;i<NB;i++){if(i>=a&&i<=b){inn+=bp[i];ni++;}else{out+=bp[i];no++;}}
+  return 10*Math.log10(inn/ni+1e-14)-10*Math.log10(out/Math.max(no,1)+1e-14);
+}
+// does this frame look like the learned whistle? shape match, OR (for tonal whistles) clearly dominant in its own band even with talking on top
+function matches(bp){
+  if(corr(bp)>=0.75-0.003*S.sens)return true;
+  if(S.prof.dom0!=null&&S.prof.dom0>=6){const ix=profIdx();return dominance(bp,ix[0],ix[1])>=S.prof.dom0-8;}
+  return false;
+}
 
 function micTick(){
   if(!mic.an)return;
@@ -302,7 +319,7 @@ function micTick(){
   const db=10*Math.log10(s/n+1e-12);
   const bp=(S.prof||L.active)?bandPowers():null;
   if(L.active)learnFeed(bp,now);
-  const ok=(S.prof&&!L.active)?corr(bp)>=(0.75-0.003*S.sens):true;
+  const ok=(S.prof&&!L.active)?matches(bp):true;
   const r=det.feed(db,now,S.sens,ok);
   const lvl=Math.max(0,Math.min(1,(db-r.floor)/40));
   $("#mbar").style.width=(lvl*100)+"%";
@@ -343,7 +360,7 @@ function analyse(){
   db.forEach((x,i)=>{if(x>=mx-12){if(a<0)a=i;b=i;}});
   a=Math.max(0,a-1);b=Math.min(NB-1,b+1);
   const f=i=>F0*Math.pow(F1/F0,i/NB);
-  S.prof={shape:Array.from(shapeOf(sig)),lo:Math.round(f(a)),hi:Math.round(f(b+1))};
+  S.prof={shape:Array.from(shapeOf(sig)),lo:Math.round(f(a)),hi:Math.round(f(b+1)),dom0:dominance(sig,a,b)};
   save();setBand();det.reset();
   return true;
 }
