@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1816">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>Cooker Whistle Counter</title>
+<style>
+:root{--bg:#1c1816;--card:#2a2420;--card2:#352d28;--ink:#f5ede4;--mute:#a89a8c;--acc:#ff8a3d;--ok:#5ec27a;--bad:#ff5b4d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans","Noto Sans Tamil","Noto Sans Devanagari","Noto Sans Telugu","Noto Sans Malayalam","Noto Sans Kannada",sans-serif}
+body{min-height:100dvh;padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px}
+h1{font-size:19px;margin:0;font-weight:700}
+#gear{background:var(--card);color:var(--ink);border:0;border-radius:12px;width:44px;height:44px;font-size:22px}
+.tabs{display:flex;gap:8px;padding:8px 16px}
+.tabs button{flex:1;padding:12px;border:0;border-radius:12px;background:var(--card);color:var(--mute);font-size:16px;font-weight:600}
+.tabs button.on{background:var(--acc);color:#1c1816}
+main{padding:0 16px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin:10px 0}
+.center{text-align:center}
+.count{font-size:96px;font-weight:800;line-height:1.05;color:var(--acc)}
+.count small{font-size:44px;color:var(--mute);font-weight:600}
+.status{color:var(--mute);min-height:22px;margin-top:2px}
+.row{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:10px}
+.rb{width:64px;height:48px;border:0;border-radius:12px;background:var(--card2);color:var(--ink);font-size:22px}
+.lbl{color:var(--mute);font-size:14px;margin-bottom:8px;display:block}
+.step{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.step b{font-size:30px;min-width:60px;text-align:center}
+.step button{width:56px;height:48px;border:0;border-radius:12px;background:var(--card2);color:var(--ink);font-size:24px}
+.meter{position:relative;height:16px;background:var(--card2);border-radius:8px;overflow:hidden;margin:8px 0}
+#mbar{height:100%;width:0;background:#6b8f9e;transition:width .06s}
+#mbar.hot{background:var(--ok)}
+#mthr{position:absolute;top:0;bottom:0;width:3px;background:var(--acc);left:50%}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.small{color:var(--mute);font-size:13px;margin:6px 0 0}
+.btn2{border:0;border-radius:12px;background:var(--card2);color:var(--ink);padding:12px 14px;font-size:15px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+.big{width:100%;border:0;border-radius:16px;padding:18px;font-size:22px;font-weight:800;background:var(--ok);color:#10210f}
+.big.stop{background:var(--bad);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{display:inline-flex;border-radius:20px;background:var(--card2);overflow:hidden}
+.chip button{background:none;border:0;color:var(--ink);padding:10px 12px;font-size:15px}
+.chip button.x{color:var(--mute);padding-left:2px}
+.save{display:flex;gap:8px}
+.save input{flex:1;min-width:0;border:0;border-radius:12px;background:var(--card2);color:var(--ink);padding:12px;font-size:16px}
+.msg{margin:6px 16px;padding:12px;border-radius:12px;background:#5a2b25;color:#ffd9d3;font-size:14px}
+.warn{background:#4a3d1a;color:#ffe9a8}
+.tdisp{font-size:76px;font-weight:800;text-align:center;color:var(--acc);font-variant-numeric:tabular-nums;margin:6px 0 10px}
+.tin{display:flex;gap:10px}
+.tin label{flex:1}
+.tin input{width:100%;border:0;border-radius:12px;background:var(--card2);color:var(--ink);padding:12px;font-size:24px;text-align:center}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:5}
+#sheet.show{display:flex}
+.panel{background:var(--card);width:100%;max-height:88dvh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
+.panel h2{margin:0 0 12px;font-size:18px}
+.langs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.langs button{padding:12px 4px;border:2px solid transparent;border-radius:12px;background:var(--card2);color:var(--ink);font-size:16px}
+.langs button.on{border-color:var(--acc)}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--card2);gap:12px}
+.tog input{width:26px;height:26px;accent-color:var(--acc)}
+.aud{margin:6px 0 14px}
+.aud .nm{color:var(--mute);font-size:14px;margin:6px 0;word-break:break-all}
+#ov{position:fixed;inset:0;z-index:9;background:var(--bad);display:none;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:24px;text-align:center;animation:fl 1s infinite alternate}
+#ov.show{display:flex}
+#ovmsg{font-size:34px;font-weight:800;color:#fff}
+#ov button{border:0;border-radius:18px;padding:22px 34px;font-size:24px;font-weight:800;background:#fff;color:#a31c10}
+@keyframes fl{from{background:#d6382b}to{background:#ff6a3d}}
+</style>
+</head>
+<body>
+<header>
+  <h1 data-i="title"></h1>
+  <button id="gear" aria-label="Settings">⚙</button>
+</header>
+<nav class="tabs">
+  <button id="tabW" class="on" data-i="tabW"></button>
+  <button id="tabT" data-i="tabT"></button>
+</nav>
+<div id="msg" class="msg" hidden></div>
+
+<main>
+<section id="pW">
+  <div class="card center">
+    <div class="count"><span id="cnt">0</span><small>/<span id="tgt">3</span></small></div>
+    <div id="status" class="status"></div>
+    <div id="bkt" class="small"></div>
+    <div class="row"><button class="rb" id="m1">−1</button><button class="rb" id="p1">+1</button></div>
+  </div>
+  <div id="keep" class="msg warn" hidden data-i="keepOpen"></div>
+
+  <div class="card">
+    <span class="lbl" data-i="target"></span>
+    <div class="step"><button id="tgM">−</button><b id="tgv">3</b><button id="tgP">+</button></div>
+  </div>
+  <div class="card">
+    <span class="lbl" data-i="backup"></span>
+    <div class="step"><button id="bkM">−</button><b id="bkv">0</b><button id="bkP">+</button></div>
+  </div>
+  <div class="card">
+    <span class="lbl" data-i="micLevel"></span>
+    <div class="meter"><div id="mbar"></div><div id="mthr"></div></div>
+    <span class="lbl" data-i="sens"></span>
+    <input id="sens" type="range" min="0" max="100">
+    <div class="row" style="justify-content:space-between"><button class="btn2" id="testMic" data-i="testMic"></button></div>
+    <p class="small" data-i="tip"></p>
+  </div>
+  <div class="card">
+    <span class="lbl" data-i="presets"></span>
+    <div class="chips" id="pwList"></div>
+    <div class="save"><input id="pwName" data-ip="name"><button class="btn2" id="pwSave" data-i="save"></button></div>
+  </div>
+  <div class="bar"><button class="big" id="wGo"></button></div>
+</section>
+
+<section id="pT" hidden>
+  <div class="card">
+    <div class="tdisp" id="tdisp">10:00</div>
+    <div class="tin">
+      <label><span class="lbl" data-i="minutes"></span><input id="tmin" type="number" inputmode="numeric" min="0" max="999"></label>
+      <label><span class="lbl" data-i="seconds"></span><input id="tsec" type="number" inputmode="numeric" min="0" max="59"></label>
+    </div>
+    <div class="chips" style="margin-top:12px" id="quick"></div>
+  </div>
+  <div class="card">
+    <span class="lbl" data-i="presets"></span>
+    <div class="chips" id="ptList"></div>
+    <div class="save"><input id="ptName" data-ip="name"><button class="btn2" id="ptSave" data-i="save"></button></div>
+  </div>
+  <div id="keepT" class="msg warn" hidden data-i="keepOpen"></div>
+  <div class="bar"><button class="big" id="tGo"></button></div>
+</section>
+</main>
+
+<div id="sheet">
+  <div class="panel">
+    <h2 data-i="settings"></h2>
+    <span class="lbl" data-i="language"></span>
+    <div class="langs" id="langs"></div>
+    <span class="lbl" data-i="audio"></span>
+    <div class="aud">
+      <div class="nm" id="audName"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn2" id="pick" data-i="choose"></button>
+        <button class="btn2" id="rmAud" data-i="removeAudio"></button>
+        <button class="btn2" id="testAlert" data-i="test"></button>
+      </div>
+      <input type="file" id="file" accept="audio/*" hidden>
+    </div>
+    <label class="tog"><span data-i="pre"></span><input type="checkbox" id="oPre"></label>
+    <label class="tog"><span data-i="vib"></span><input type="checkbox" id="oVib"></label>
+    <label class="tog"><span data-i="awake"></span><input type="checkbox" id="oAwake"></label>
+    <label class="tog"><span data-i="repeat"></span><input type="checkbox" id="oRep"></label>
+    <button class="big" style="margin-top:14px;background:var(--acc);color:#1c1816" id="closeSheet" data-i="close"></button>
+  </div>
+</div>
+
+<div id="ov"><div id="ovmsg"></div><button id="ovStop" data-i="stopAlarm"></button></div>
+
+<script>
+"use strict";
+/* ---------- translations ---------- */
+const LANGS={en:"English",ta:"தமிழ்",hi:"हिन्दी",te:"తెలుగు",ml:"മലയാളം",kn:"ಕನ್ನಡ"};
+const T={
+en:{title:"Cooker Whistle Counter",tabW:"Whistles",tabT:"Timer",settings:"Settings",language:"Language",target:"Whistles needed",backup:"Backup timer (minutes, 0 = off)",minutes:"Minutes",seconds:"Seconds",start:"Start",stop:"Stop",listening:"Listening for whistles…",idle:"Ready",micLevel:"Mic level",sens:"Sensitivity",testMic:"Test mic",audio:"Alert audio",choose:"Choose audio file",removeAudio:"Remove",defaultBeep:"Default beep",test:"Test alert",pre:"Beep before the last whistle",vib:"Vibrate",awake:"Keep screen on",repeat:"Repeat alert every 30 s until stopped",presets:"Presets",save:"Save preset",name:"Preset name",doneW:"Whistles done! Turn off the gas.",doneT:"Time's up!",stopAlarm:"Stop alarm",micDenied:"Microphone blocked. Allow it in Chrome site settings.",keepOpen:"Keep this screen open. Counting pauses if the screen turns off.",missed:"Screen was off. Some whistles may be missed — check the count.",tip:"Keep the phone near the cooker, away from fans.",close:"Close"},
+ta:{title:"குக்கர் விசில் எண்ணி",tabW:"விசில்",tabT:"டைமர்",settings:"அமைப்புகள்",language:"மொழி",target:"தேவையான விசில்கள்",backup:"காப்பு டைமர் (நிமிடம், 0 = இல்லை)",minutes:"நிமிடம்",seconds:"வினாடி",start:"தொடங்கு",stop:"நிறுத்து",listening:"விசிலுக்காகக் கேட்கிறது…",idle:"தயார்",micLevel:"மைக் அளவு",sens:"உணர்திறன்",testMic:"மைக் சோதி",audio:"அலாரம் ஒலி",choose:"ஆடியோ கோப்பைத் தேர்வு செய்",removeAudio:"நீக்கு",defaultBeep:"இயல்புநிலை பீப்",test:"அலாரம் சோதி",pre:"கடைசி விசிலுக்கு முன் பீப்",vib:"அதிர்வு",awake:"திரையை இயக்கத்தில் வை",repeat:"நிறுத்தும் வரை 30 வினாடிக்கு ஒருமுறை ஒலி",presets:"முன்னமைவுகள்",save:"முன்னமைவைச் சேமி",name:"பெயர்",doneW:"விசில் முடிந்தது! கேஸை அணைக்கவும்.",doneT:"நேரம் முடிந்தது!",stopAlarm:"அலாரத்தை நிறுத்து",micDenied:"மைக் தடுக்கப்பட்டுள்ளது. Chrome தள அமைப்புகளில் அனுமதிக்கவும்.",keepOpen:"இந்தத் திரையைத் திறந்தே வைக்கவும். திரை அணைந்தால் எண்ணுவது நிற்கும்.",missed:"திரை அணைந்திருந்தது. சில விசில்கள் விடுபட்டிருக்கலாம் — எண்ணிக்கையைச் சரிபார்க்கவும்.",tip:"போனை குக்கர் அருகில், மின்விசிறியிலிருந்து தள்ளி வைக்கவும்.",close:"மூடு"},
+hi:{title:"कुकर सीटी काउंटर",tabW:"सीटी",tabT:"टाइमर",settings:"सेटिंग्स",language:"भाषा",target:"कितनी सीटी चाहिए",backup:"बैकअप टाइमर (मिनट, 0 = बंद)",minutes:"मिनट",seconds:"सेकंड",start:"शुरू करें",stop:"रोकें",listening:"सीटी सुन रहा है…",idle:"तैयार",micLevel:"माइक स्तर",sens:"संवेदनशीलता",testMic:"माइक जाँचें",audio:"अलर्ट ऑडियो",choose:"ऑडियो फ़ाइल चुनें",removeAudio:"हटाएँ",defaultBeep:"डिफ़ॉल्ट बीप",test:"अलर्ट जाँचें",pre:"आख़िरी सीटी से पहले बीप",vib:"कंपन",awake:"स्क्रीन चालू रखें",repeat:"बंद करने तक हर 30 सेकंड में दोहराएँ",presets:"प्रीसेट",save:"प्रीसेट सहेजें",name:"प्रीसेट का नाम",doneW:"सीटियाँ पूरी! गैस बंद करें।",doneT:"समय पूरा!",stopAlarm:"अलार्म बंद करें",micDenied:"माइक्रोफ़ोन ब्लॉक है। Chrome की साइट सेटिंग में अनुमति दें।",keepOpen:"यह स्क्रीन खुली रखें। स्क्रीन बंद होने पर गिनती रुक जाती है।",missed:"स्क्रीन बंद थी। कुछ सीटियाँ छूट सकती हैं — गिनती जाँचें।",tip:"फ़ोन कुकर के पास रखें, पंखे से दूर।",close:"बंद करें"},
+te:{title:"కుక్కర్ విజిల్ కౌంటర్",tabW:"విజిల్",tabT:"టైమర్",settings:"సెట్టింగ్స్",language:"భాష",target:"కావలసిన విజిల్స్",backup:"బ్యాకప్ టైమర్ (నిమిషాలు, 0 = ఆఫ్)",minutes:"నిమిషాలు",seconds:"సెకన్లు",start:"ప్రారంభించు",stop:"ఆపు",listening:"విజిల్ కోసం వింటోంది…",idle:"సిద్ధం",micLevel:"మైక్ స్థాయి",sens:"సున్నితత్వం",testMic:"మైక్ పరీక్షించు",audio:"అలర్ట్ ఆడియో",choose:"ఆడియో ఫైల్ ఎంచుకోండి",removeAudio:"తొలగించు",defaultBeep:"డిఫాల్ట్ బీప్",test:"అలర్ట్ పరీక్షించు",pre:"చివరి విజిల్ ముందు బీప్",vib:"వైబ్రేట్",awake:"స్క్రీన్ ఆన్‌లో ఉంచు",repeat:"ఆపే వరకు ప్రతి 30 సెకన్లకు పునరావృతం",presets:"ప్రీసెట్లు",save:"ప్రీసెట్ సేవ్ చేయి",name:"ప్రీసెట్ పేరు",doneW:"విజిల్స్ పూర్తయ్యాయి! గ్యాస్ ఆపండి.",doneT:"సమయం అయిపోయింది!",stopAlarm:"అలారం ఆపు",micDenied:"మైక్రోఫోన్ బ్లాక్ అయింది. Chrome సైట్ సెట్టింగ్స్‌లో అనుమతించండి.",keepOpen:"ఈ స్క్రీన్ తెరిచే ఉంచండి. స్క్రీన్ ఆఫ్ అయితే లెక్కింపు ఆగుతుంది.",missed:"స్క్రీన్ ఆఫ్ అయింది. కొన్ని విజిల్స్ మిస్ అయి ఉండవచ్చు — లెక్క చూడండి.",tip:"ఫోన్‌ను కుక్కర్ దగ్గర, ఫ్యాన్‌కు దూరంగా ఉంచండి.",close:"మూసివేయి"},
+ml:{title:"കുക്കർ വിസിൽ കൗണ്ടർ",tabW:"വിസിൽ",tabT:"ടൈമർ",settings:"ക്രമീകരണങ്ങൾ",language:"ഭാഷ",target:"വേണ്ട വിസിലുകൾ",backup:"ബാക്കപ്പ് ടൈമർ (മിനിറ്റ്, 0 = ഓഫ്)",minutes:"മിനിറ്റ്",seconds:"സെക്കൻഡ്",start:"തുടങ്ങുക",stop:"നിർത്തുക",listening:"വിസിലിനായി കേൾക്കുന്നു…",idle:"തയ്യാർ",micLevel:"മൈക്ക് നില",sens:"സംവേദനക്ഷമത",testMic:"മൈക്ക് പരിശോധിക്കുക",audio:"അലേർട്ട് ഓഡിയോ",choose:"ഓഡിയോ ഫയൽ തിരഞ്ഞെടുക്കുക",removeAudio:"നീക്കം ചെയ്യുക",defaultBeep:"സാധാരണ ബീപ്",test:"അലേർട്ട് പരിശോധിക്കുക",pre:"അവസാന വിസിലിന് മുമ്പ് ബീപ്",vib:"വൈബ്രേറ്റ്",awake:"സ്ക്രീൻ ഓണാക്കി വയ്ക്കുക",repeat:"നിർത്തുന്നതുവരെ 30 സെക്കൻഡിൽ ആവർത്തിക്കുക",presets:"പ്രീസെറ്റുകൾ",save:"പ്രീസെറ്റ് സേവ് ചെയ്യുക",name:"പ്രീസെറ്റ് പേര്",doneW:"വിസിലുകൾ പൂർത്തിയായി! ഗ്യാസ് ഓഫ് ചെയ്യൂ.",doneT:"സമയം കഴിഞ്ഞു!",stopAlarm:"അലാറം നിർത്തുക",micDenied:"മൈക്രോഫോൺ തടഞ്ഞിരിക്കുന്നു. Chrome സൈറ്റ് ക്രമീകരണത്തിൽ അനുവദിക്കുക.",keepOpen:"ഈ സ്ക്രീൻ തുറന്നു വയ്ക്കുക. സ്ക്രീൻ ഓഫ് ആയാൽ എണ്ണൽ നിൽക്കും.",missed:"സ്ക്രീൻ ഓഫ് ആയിരുന്നു. ചില വിസിലുകൾ നഷ്ടമായിരിക്കാം — എണ്ണം പരിശോധിക്കുക.",tip:"ഫോൺ കുക്കറിനടുത്ത്, ഫാനിൽ നിന്ന് അകലെ വയ്ക്കുക.",close:"അടയ്ക്കുക"},
+kn:{title:"ಕುಕ್ಕರ್ ಸೀಟಿ ಕೌಂಟರ್",tabW:"ಸೀಟಿ",tabT:"ಟೈಮರ್",settings:"ಸೆಟ್ಟಿಂಗ್ಸ್",language:"ಭಾಷೆ",target:"ಬೇಕಾದ ಸೀಟಿಗಳು",backup:"ಬ್ಯಾಕಪ್ ಟೈಮರ್ (ನಿಮಿಷ, 0 = ಆಫ್)",minutes:"ನಿಮಿಷ",seconds:"ಸೆಕೆಂಡ್",start:"ಪ್ರಾರಂಭಿಸಿ",stop:"ನಿಲ್ಲಿಸಿ",listening:"ಸೀಟಿಗಾಗಿ ಕೇಳುತ್ತಿದೆ…",idle:"ಸಿದ್ಧ",micLevel:"ಮೈಕ್ ಮಟ್ಟ",sens:"ಸಂವೇದನೆ",testMic:"ಮೈಕ್ ಪರೀಕ್ಷಿಸಿ",audio:"ಅಲರ್ಟ್ ಆಡಿಯೋ",choose:"ಆಡಿಯೋ ಫೈಲ್ ಆರಿಸಿ",removeAudio:"ತೆಗೆಯಿರಿ",defaultBeep:"ಡೀಫಾಲ್ಟ್ ಬೀಪ್",test:"ಅಲರ್ಟ್ ಪರೀಕ್ಷಿಸಿ",pre:"ಕೊನೆಯ ಸೀಟಿಗೆ ಮೊದಲು ಬೀಪ್",vib:"ಕಂಪನ",awake:"ಪರದೆ ಆನ್ ಆಗಿರಲಿ",repeat:"ನಿಲ್ಲಿಸುವವರೆಗೆ ಪ್ರತಿ 30 ಸೆಕೆಂಡ್‌ಗೆ ಪುನರಾವರ್ತಿಸಿ",presets:"ಪ್ರೀಸೆಟ್‌ಗಳು",save:"ಪ್ರೀಸೆಟ್ ಉಳಿಸಿ",name:"ಪ್ರೀಸೆಟ್ ಹೆಸರು",doneW:"ಸೀಟಿಗಳು ಮುಗಿದವು! ಗ್ಯಾಸ್ ಆಫ್ ಮಾಡಿ.",doneT:"ಸಮಯ ಮುಗಿಯಿತು!",stopAlarm:"ಅಲಾರಂ ನಿಲ್ಲಿಸಿ",micDenied:"ಮೈಕ್ರೋಫೋನ್ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. Chrome ಸೈಟ್ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಅನುಮತಿಸಿ.",keepOpen:"ಈ ಪರದೆ ತೆರೆದಿಡಿ. ಪರದೆ ಆಫ್ ಆದರೆ ಎಣಿಕೆ ನಿಲ್ಲುತ್ತದೆ.",missed:"ಪರದೆ ಆಫ್ ಆಗಿತ್ತು. ಕೆಲವು ಸೀಟಿಗಳು ತಪ್ಪಿರಬಹುದು — ಎಣಿಕೆ ಪರಿಶೀಲಿಸಿ.",tip:"ಫೋನನ್ನು ಕುಕ್ಕರ್ ಹತ್ತಿರ, ಫ್ಯಾನ್‌ನಿಂದ ದೂರ ಇಡಿ.",close:"ಮುಚ್ಚಿ"}
+};
+
+/* ---------- state & storage ---------- */
+const $=s=>document.querySelector(s);
+let S={lang:null,target:3,backup:0,sens:50,pre:true,vib:true,awake:true,repeat:false,audioName:"",pw:[],pt:[],tm:10,ts:0};
+try{Object.assign(S,JSON.parse(localStorage.getItem("cwc")||"{}"));}catch(e){}
+if(!S.lang||!T[S.lang]){const n=(navigator.language||"en").slice(0,2);S.lang=T[n]?n:"en";}
+function save(){try{localStorage.setItem("cwc",JSON.stringify(S));}catch(e){}}
+function tr(k){return (T[S.lang]&&T[S.lang][k])||T.en[k]||k;}
+const W={running:false,count:0,backupEnd:0};
+const TM={running:false,end:0};
+let testing=false,hiddenAt=0;
+
+/* ---------- indexedDB for audio file ---------- */
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open("cwc",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function idbSet(k,v){const d=await idb();return new Promise((res,rej)=>{const x=d.transaction("kv","readwrite");x.objectStore("kv").put(v,k);x.oncomplete=res;x.onerror=()=>rej(x.error);});}
+async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{const q=d.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});}
+async function idbDel(k){const d=await idb();return new Promise((res,rej)=>{const x=d.transaction("kv","readwrite");x.objectStore("kv").delete(k);x.oncomplete=res;x.onerror=()=>rej(x.error);});}
+
+/* ---------- whistle detector (pure logic) ---------- */
+/*DETECTOR_START*/
+class Detector{
+  constructor(){this.reset();}
+  reset(){this.floor=null;this.state=0;this.aboveSince=null;this.belowSince=null;this.burstStart=0;this.lastEnd=-1e9;}
+  margin(sens){return 26-0.2*sens;}
+  feed(db,now,sens){
+    if(this.floor===null)this.floor=db;
+    const thresh=Math.max(this.floor+this.margin(sens),-75);
+    let ev=null;
+    if(this.state===0){
+      if(db>thresh){
+        if(this.aboveSince===null)this.aboveSince=now;
+        if(now-this.aboveSince>=300){
+          this.state=1;this.belowSince=null;this.burstStart=now;
+          if(now-this.lastEnd>=1500)ev="whistle";
+        }
+      }else{
+        this.aboveSince=null;
+        this.floor+=(db>this.floor?0.01:0.1)*(db-this.floor);
+      }
+    }else{
+      if(db<thresh-3){
+        if(this.belowSince===null)this.belowSince=now;
+        if(now-this.belowSince>=500){this.state=0;this.lastEnd=now;this.aboveSince=null;this.belowSince=null;}
+      }else{
+        this.belowSince=null;
+        if(now-this.burstStart>40000){this.floor=db;this.state=0;this.lastEnd=now;this.aboveSince=null;}
+      }
+    }
+    return {ev,floor:this.floor,thresh};
+  }
+}
+/*DETECTOR_END*/
+const det=new Detector();
+
+/* ---------- microphone ---------- */
+const mic={ctx:null,stream:null,an:null,buf:null,timer:null,lo:0,hi:0};
+async function micStart(){
+  if(mic.ctx&&mic.stream&&mic.stream.getTracks().every(k=>k.readyState==="live")){
+    if(mic.ctx.state==="suspended")await mic.ctx.resume();
+    return true;
+  }
+  micStop();
+  try{
+    mic.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  }catch(e){showMsg(tr("micDenied"),false);return false;}
+  const AC=window.AudioContext||window.webkitAudioContext;
+  mic.ctx=new AC();
+  const src=mic.ctx.createMediaStreamSource(mic.stream);
+  mic.an=mic.ctx.createAnalyser();mic.an.fftSize=2048;mic.an.smoothingTimeConstant=0.2;
+  src.connect(mic.an);
+  mic.buf=new Float32Array(mic.an.frequencyBinCount);
+  const hz=mic.ctx.sampleRate/2048;mic.lo=Math.floor(1500/hz);mic.hi=Math.ceil(6000/hz);
+  det.reset();
+  mic.timer=setInterval(micTick,50);
+  return true;
+}
+function micStop(){
+  if(mic.timer)clearInterval(mic.timer);mic.timer=null;
+  if(mic.stream)mic.stream.getTracks().forEach(k=>k.stop());
+  if(mic.ctx)try{mic.ctx.close();}catch(e){}
+  mic.ctx=mic.stream=mic.an=null;
+  $("#mbar").style.width="0";
+}
+function micRelease(){if(!W.running&&!testing)micStop();}
+function micTick(){
+  if(!mic.an)return;
+  mic.an.getFloatFrequencyData(mic.buf);
+  let s=0,n=0;
+  for(let i=mic.lo;i<=mic.hi;i++){s+=Math.pow(10,mic.buf[i]/10);n++;}
+  const db=10*Math.log10(s/n+1e-12);
+  const r=det.feed(db,performance.now(),S.sens);
+  const lvl=Math.max(0,Math.min(1,(db-r.floor)/40));
+  $("#mbar").style.width=(lvl*100)+"%";
+  $("#mbar").classList.toggle("hot",db>r.thresh);
+  $("#mthr").style.left=Math.min(100,((r.thresh-r.floor)/40)*100)+"%";
+  if(r.ev&&W.running)addWhistle(1);
+}
+
+/* ---------- sound: beeps + custom audio ---------- */
+let bctx=null,bnodes=[],audioUrl=null;
+const audioEl=new Audio();audioEl.preload="auto";
+function getB(){if(!bctx){const AC=window.AudioContext||window.webkitAudioContext;bctx=new AC();}if(bctx.state==="suspended")bctx.resume();return bctx;}
+function beep(n,freq,dur,gap){
+  const c=getB();let t0=c.currentTime+0.02;
+  for(let i=0;i<n;i++){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type="sine";o.frequency.value=freq;o.connect(g);g.connect(c.destination);
+    g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(0.8,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.start(t0);o.stop(t0+dur+0.05);bnodes.push(o);t0+=dur+gap;
+  }
+}
+function stopSound(){
+  bnodes.forEach(o=>{try{o.stop();}catch(e){}});bnodes=[];
+  audioEl.pause();try{audioEl.currentTime=0;}catch(e){}
+}
+function unlockAudio(){
+  getB();
+  if(audioUrl){audioEl.muted=true;audioEl.play().then(()=>{audioEl.pause();audioEl.currentTime=0;audioEl.muted=false;}).catch(()=>{audioEl.muted=false;});}
+}
+function playAlert(){
+  if(audioUrl){audioEl.muted=false;audioEl.currentTime=0;audioEl.play().catch(()=>beep(8,880,0.3,0.2));}
+  else beep(8,880,0.3,0.2);
+}
+async function loadAudio(){
+  try{const f=await idbGet("audio");if(f){if(audioUrl)URL.revokeObjectURL(audioUrl);audioUrl=URL.createObjectURL(f);audioEl.src=audioUrl;}}catch(e){}
+}
+
+/* ---------- alarm overlay ---------- */
+let alarmTimer=null;
+function alarm(kind){
+  $("#ovmsg").textContent=tr(kind==="W"?"doneW":"doneT");
+  $("#ov").classList.add("show");
+  playAlert();
+  if(S.vib&&navigator.vibrate)navigator.vibrate([500,200,500,200,500,200,500]);
+  clearInterval(alarmTimer);alarmTimer=null;
+  if(S.repeat)alarmTimer=setInterval(()=>{playAlert();if(S.vib&&navigator.vibrate)navigator.vibrate([500,200,500]);},30000);
+}
+function stopAlarm(){
+  clearInterval(alarmTimer);alarmTimer=null;stopSound();
+  $("#ov").classList.remove("show");
+  if(navigator.vibrate)navigator.vibrate(0);
+}
+
+/* ---------- wake lock ---------- */
+let wl=null;
+async function setAwake(){
+  const need=(W.running||TM.running)&&S.awake;
+  try{
+    if(need&&!wl&&"wakeLock" in navigator){wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null;});}
+    else if(!need&&wl){await wl.release();wl=null;}
+  }catch(e){}
+}
+
+/* ---------- messages ---------- */
+let msgKey=null;
+function showMsg(text,warn){const m=$("#msg");m.textContent=text;m.className="msg"+(warn?" warn":"");m.hidden=false;}
+$("#msg").onclick=()=>{$("#msg").hidden=true;};
+
+/* ---------- whistle tab ---------- */
+const fmt=s=>String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+function renderW(){
+  $("#cnt").textContent=W.count;$("#tgt").textContent=S.target;
+  $("#tgv").textContent=S.target;$("#bkv").textContent=S.backup;
+  const g=$("#wGo");g.textContent=tr(W.running?"stop":"start");g.classList.toggle("stop",W.running);
+  $("#status").textContent=tr(W.running?"listening":"idle");
+  $("#keep").hidden=!W.running;
+  renderBackup();
+}
+function renderBackup(){
+  const e=$("#bkt");
+  if(W.running&&W.backupEnd){e.textContent="⏱ "+fmt(Math.max(0,Math.ceil((W.backupEnd-Date.now())/1000)));}else e.textContent="";
+}
+function addWhistle(d){
+  W.count=Math.max(0,W.count+d);renderW();
+  if(d>0){
+    if(S.vib&&navigator.vibrate)navigator.vibrate(200);
+    if(W.running&&W.count>=S.target){finish("W");return;}
+    if(W.running&&S.pre&&S.target>1&&W.count===S.target-1)beep(2,660,0.15,0.1);
+  }
+}
+async function wStart(){
+  unlockAudio();
+  if(!(await micStart()))return;
+  det.reset();W.running=true;W.count=0;
+  W.backupEnd=S.backup>0?Date.now()+S.backup*60000:0;
+  $("#msg").hidden=true;
+  setAwake();renderW();
+}
+function wStop(){W.running=false;micRelease();setAwake();renderW();}
+function finish(kind){
+  if(kind==="W"||kind==="B"){W.running=false;micRelease();}
+  setAwake();renderW();
+  alarm(kind==="W"?"W":"T");
+}
+$("#wGo").onclick=()=>{W.running?wStop():wStart();};
+$("#m1").onclick=()=>addWhistle(-1);
+$("#p1").onclick=()=>addWhistle(1);
+$("#tgM").onclick=()=>{S.target=Math.max(1,S.target-1);save();renderW();};
+$("#tgP").onclick=()=>{S.target=Math.min(30,S.target+1);save();renderW();};
+$("#bkM").onclick=()=>{S.backup=Math.max(0,S.backup-5);save();renderW();};
+$("#bkP").onclick=()=>{S.backup=Math.min(180,S.backup+5);save();renderW();};
+$("#sens").oninput=e=>{S.sens=+e.target.value;save();};
+$("#testMic").onclick=async()=>{
+  if(testing){testing=false;micRelease();}
+  else if(await micStart()){testing=true;}
+};
+
+/* ---------- timer tab ---------- */
+function timerSecs(){return Math.max(0,(+$("#tmin").value||0)*60+(+$("#tsec").value||0));}
+function renderT(){
+  const secs=TM.running?Math.max(0,Math.ceil((TM.end-Date.now())/1000)):timerSecs();
+  $("#tdisp").textContent=fmt(secs);
+  const g=$("#tGo");g.textContent=tr(TM.running?"stop":"start");g.classList.toggle("stop",TM.running);
+  $("#tmin").disabled=$("#tsec").disabled=TM.running;
+  $("#keepT").hidden=!TM.running;
+}
+function tStart(){
+  const s=timerSecs();if(!s)return;
+  unlockAudio();
+  TM.end=Date.now()+s*1000;TM.running=true;setAwake();renderT();
+}
+function tStop(){TM.running=false;setAwake();renderT();}
+$("#tGo").onclick=()=>{TM.running?tStop():tStart();};
+["#tmin","#tsec"].forEach(id=>$(id).oninput=()=>{S.tm=+$("#tmin").value||0;S.ts=+$("#tsec").value||0;save();renderT();});
+[5,10,15,20,30,45].forEach(m=>{
+  const b=document.createElement("button");b.className="btn2";b.textContent=m+"′";
+  b.onclick=()=>{if(TM.running)return;$("#tmin").value=m;$("#tsec").value=0;S.tm=m;S.ts=0;save();renderT();};
+  $("#quick").appendChild(b);
+});
+
+/* ---------- presets ---------- */
+function renderPresets(key,box,label,apply){
+  box.innerHTML="";
+  S[key].forEach((p,i)=>{
+    const c=document.createElement("span");c.className="chip";
+    const a=document.createElement("button");a.textContent=label(p);a.onclick=()=>apply(p);
+    const x=document.createElement("button");x.className="x";x.textContent="✕";x.onclick=()=>{S[key].splice(i,1);save();renderAllPresets();};
+    c.append(a,x);box.appendChild(c);
+  });
+}
+function renderAllPresets(){
+  renderPresets("pw",$("#pwList"),p=>p.n+" · "+p.w+(p.b?" / "+p.b+"′":""),p=>{S.target=p.w;S.backup=p.b||0;save();renderW();});
+  renderPresets("pt",$("#ptList"),p=>p.n+" · "+p.m+"′"+(p.s?p.s+"″":""),p=>{if(TM.running)return;$("#tmin").value=p.m;$("#tsec").value=p.s||0;S.tm=p.m;S.ts=p.s||0;save();renderT();});
+}
+$("#pwSave").onclick=()=>{const n=$("#pwName").value.trim()||("🔔"+S.target);S.pw.push({n,w:S.target,b:S.backup});$("#pwName").value="";save();renderAllPresets();};
+$("#ptSave").onclick=()=>{const m=+$("#tmin").value||0,s=+$("#tsec").value||0;if(!m&&!s)return;const n=$("#ptName").value.trim()||"⏱";S.pt.push({n,m,s});$("#ptName").value="";save();renderAllPresets();};
+
+/* ---------- tabs ---------- */
+function tab(w){
+  $("#pW").hidden=!w;$("#pT").hidden=w;
+  $("#tabW").classList.toggle("on",w);$("#tabT").classList.toggle("on",!w);
+}
+$("#tabW").onclick=()=>tab(true);
+$("#tabT").onclick=()=>tab(false);
+
+/* ---------- settings ---------- */
+function renderAudioName(){$("#audName").textContent=S.audioName||tr("defaultBeep");}
+function buildLangs(){
+  const box=$("#langs");box.innerHTML="";
+  Object.keys(LANGS).forEach(k=>{
+    const b=document.createElement("button");b.textContent=LANGS[k];b.className=k===S.lang?"on":"";
+    b.onclick=()=>{S.lang=k;save();applyLang();buildLangs();};
+    box.appendChild(b);
+  });
+}
+function applyLang(){
+  document.documentElement.lang=S.lang;
+  document.querySelectorAll("[data-i]").forEach(e=>e.textContent=tr(e.dataset.i));
+  document.querySelectorAll("[data-ip]").forEach(e=>e.placeholder=tr(e.dataset.ip));
+  document.title=tr("title");
+  $("#testMic").textContent=tr("testMic");
+  renderAudioName();renderW();renderT();
+}
+$("#gear").onclick=()=>{$("#sheet").classList.add("show");};
+$("#closeSheet").onclick=()=>{$("#sheet").classList.remove("show");};
+$("#sheet").onclick=e=>{if(e.target.id==="sheet")$("#sheet").classList.remove("show");};
+$("#pick").onclick=()=>$("#file").click();
+$("#file").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{await idbSet("audio",f);}catch(err){}
+  S.audioName=f.name;save();
+  if(audioUrl)URL.revokeObjectURL(audioUrl);
+  audioUrl=URL.createObjectURL(f);audioEl.src=audioUrl;
+  renderAudioName();
+};
+$("#rmAud").onclick=async()=>{try{await idbDel("audio");}catch(e){}S.audioName="";save();if(audioUrl)URL.revokeObjectURL(audioUrl);audioUrl=null;audioEl.removeAttribute("src");renderAudioName();};
+$("#testAlert").onclick=()=>{unlockAudio();setTimeout(()=>{$("#sheet").classList.remove("show");alarm("W");},50);};
+[["#oPre","pre"],["#oVib","vib"],["#oAwake","awake"],["#oRep","repeat"]].forEach(([id,k])=>{
+  $(id).checked=!!S[k];
+  $(id).onchange=e=>{S[k]=e.target.checked;save();setAwake();};
+});
+$("#ovStop").onclick=stopAlarm;
+
+/* ---------- lifecycle ---------- */
+document.addEventListener("visibilitychange",async()=>{
+  if(document.hidden){if(W.running)hiddenAt=Date.now();return;}
+  setAwake();
+  if(W.running||testing){
+    if(hiddenAt&&Date.now()-hiddenAt>3000)showMsg(tr("missed"),true);
+    hiddenAt=0;
+    await micStart();
+  }
+});
+setInterval(()=>{
+  const now=Date.now();
+  if(W.running&&W.backupEnd&&now>=W.backupEnd){W.backupEnd=0;finish("B");}
+  if(TM.running&&now>=TM.end){TM.running=false;finish("T");renderT();}
+  renderBackup();if(TM.running)renderT();
+},250);
+
+/* ---------- init ---------- */
+$("#sens").value=S.sens;$("#tmin").value=S.tm;$("#tsec").value=S.ts;
+buildLangs();renderAllPresets();applyLang();loadAudio();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
