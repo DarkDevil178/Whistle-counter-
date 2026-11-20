@@ -105,7 +105,9 @@ input[type=range]{width:100%;accent-color:var(--acc)}
     <div class="meter"><div id="mbar"></div><div id="mthr"></div></div>
     <span class="lbl" data-i="sens"></span>
     <input id="sens" type="range" min="0" max="100">
-    <div class="row" style="justify-content:space-between"><button class="btn2" id="testMic" data-i="testMic"></button></div>
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap"><button class="btn2" id="testMic" data-i="testMic"></button><button class="btn2" id="learn" data-i="learn"></button></div>
+    <p class="small" id="learnSt"></p>
+    <button class="btn2" id="forget" data-i="forget" hidden></button>
     <p class="small" data-i="tip"></p>
   </div>
   <div class="card">
@@ -165,17 +167,17 @@ input[type=range]{width:100%;accent-color:var(--acc)}
 /* ---------- translations ---------- */
 const LANGS={en:"English",ta:"தமிழ்",hi:"हिन्दी",te:"తెలుగు",ml:"മലയാളം",kn:"ಕನ್ನಡ"};
 const T={
-en:{title:"Cooker Whistle Counter",tabW:"Whistles",tabT:"Timer",settings:"Settings",language:"Language",target:"Whistles needed",backup:"Backup timer (minutes, 0 = off)",minutes:"Minutes",seconds:"Seconds",start:"Start",stop:"Stop",listening:"Listening for whistles…",idle:"Ready",micLevel:"Mic level",sens:"Sensitivity",testMic:"Test mic",audio:"Alert audio",choose:"Choose audio file",removeAudio:"Remove",defaultBeep:"Default beep",test:"Test alert",pre:"Beep before the last whistle",vib:"Vibrate",awake:"Keep screen on",repeat:"Repeat alert every 30 s until stopped",presets:"Presets",save:"Save preset",name:"Preset name",doneW:"Whistles done! Turn off the gas.",doneT:"Time's up!",stopAlarm:"Stop alarm",micDenied:"Microphone blocked. Allow it in Chrome site settings.",keepOpen:"Keep this screen open. Counting pauses if the screen turns off.",missed:"Screen was off. Some whistles may be missed — check the count.",tip:"Keep the phone near the cooker, away from fans.",close:"Close"},
-ta:{title:"குக்கர் விசில் எண்ணி",tabW:"விசில்",tabT:"டைமர்",settings:"அமைப்புகள்",language:"மொழி",target:"தேவையான விசில்கள்",backup:"காப்பு டைமர் (நிமிடம், 0 = இல்லை)",minutes:"நிமிடம்",seconds:"வினாடி",start:"தொடங்கு",stop:"நிறுத்து",listening:"விசிலுக்காகக் கேட்கிறது…",idle:"தயார்",micLevel:"மைக் அளவு",sens:"உணர்திறன்",testMic:"மைக் சோதி",audio:"அலாரம் ஒலி",choose:"ஆடியோ கோப்பைத் தேர்வு செய்",removeAudio:"நீக்கு",defaultBeep:"இயல்புநிலை பீப்",test:"அலாரம் சோதி",pre:"கடைசி விசிலுக்கு முன் பீப்",vib:"அதிர்வு",awake:"திரையை இயக்கத்தில் வை",repeat:"நிறுத்தும் வரை 30 வினாடிக்கு ஒருமுறை ஒலி",presets:"முன்னமைவுகள்",save:"முன்னமைவைச் சேமி",name:"பெயர்",doneW:"விசில் முடிந்தது! கேஸை அணைக்கவும்.",doneT:"நேரம் முடிந்தது!",stopAlarm:"அலாரத்தை நிறுத்து",micDenied:"மைக் தடுக்கப்பட்டுள்ளது. Chrome தள அமைப்புகளில் அனுமதிக்கவும்.",keepOpen:"இந்தத் திரையைத் திறந்தே வைக்கவும். திரை அணைந்தால் எண்ணுவது நிற்கும்.",missed:"திரை அணைந்திருந்தது. சில விசில்கள் விடுபட்டிருக்கலாம் — எண்ணிக்கையைச் சரிபார்க்கவும்.",tip:"போனை குக்கர் அருகில், மின்விசிறியிலிருந்து தள்ளி வைக்கவும்.",close:"மூடு"},
-hi:{title:"कुकर सीटी काउंटर",tabW:"सीटी",tabT:"टाइमर",settings:"सेटिंग्स",language:"भाषा",target:"कितनी सीटी चाहिए",backup:"बैकअप टाइमर (मिनट, 0 = बंद)",minutes:"मिनट",seconds:"सेकंड",start:"शुरू करें",stop:"रोकें",listening:"सीटी सुन रहा है…",idle:"तैयार",micLevel:"माइक स्तर",sens:"संवेदनशीलता",testMic:"माइक जाँचें",audio:"अलर्ट ऑडियो",choose:"ऑडियो फ़ाइल चुनें",removeAudio:"हटाएँ",defaultBeep:"डिफ़ॉल्ट बीप",test:"अलर्ट जाँचें",pre:"आख़िरी सीटी से पहले बीप",vib:"कंपन",awake:"स्क्रीन चालू रखें",repeat:"बंद करने तक हर 30 सेकंड में दोहराएँ",presets:"प्रीसेट",save:"प्रीसेट सहेजें",name:"प्रीसेट का नाम",doneW:"सीटियाँ पूरी! गैस बंद करें।",doneT:"समय पूरा!",stopAlarm:"अलार्म बंद करें",micDenied:"माइक्रोफ़ोन ब्लॉक है। Chrome की साइट सेटिंग में अनुमति दें।",keepOpen:"यह स्क्रीन खुली रखें। स्क्रीन बंद होने पर गिनती रुक जाती है।",missed:"स्क्रीन बंद थी। कुछ सीटियाँ छूट सकती हैं — गिनती जाँचें।",tip:"फ़ोन कुकर के पास रखें, पंखे से दूर।",close:"बंद करें"},
-te:{title:"కుక్కర్ విజిల్ కౌంటర్",tabW:"విజిల్",tabT:"టైమర్",settings:"సెట్టింగ్స్",language:"భాష",target:"కావలసిన విజిల్స్",backup:"బ్యాకప్ టైమర్ (నిమిషాలు, 0 = ఆఫ్)",minutes:"నిమిషాలు",seconds:"సెకన్లు",start:"ప్రారంభించు",stop:"ఆపు",listening:"విజిల్ కోసం వింటోంది…",idle:"సిద్ధం",micLevel:"మైక్ స్థాయి",sens:"సున్నితత్వం",testMic:"మైక్ పరీక్షించు",audio:"అలర్ట్ ఆడియో",choose:"ఆడియో ఫైల్ ఎంచుకోండి",removeAudio:"తొలగించు",defaultBeep:"డిఫాల్ట్ బీప్",test:"అలర్ట్ పరీక్షించు",pre:"చివరి విజిల్ ముందు బీప్",vib:"వైబ్రేట్",awake:"స్క్రీన్ ఆన్‌లో ఉంచు",repeat:"ఆపే వరకు ప్రతి 30 సెకన్లకు పునరావృతం",presets:"ప్రీసెట్లు",save:"ప్రీసెట్ సేవ్ చేయి",name:"ప్రీసెట్ పేరు",doneW:"విజిల్స్ పూర్తయ్యాయి! గ్యాస్ ఆపండి.",doneT:"సమయం అయిపోయింది!",stopAlarm:"అలారం ఆపు",micDenied:"మైక్రోఫోన్ బ్లాక్ అయింది. Chrome సైట్ సెట్టింగ్స్‌లో అనుమతించండి.",keepOpen:"ఈ స్క్రీన్ తెరిచే ఉంచండి. స్క్రీన్ ఆఫ్ అయితే లెక్కింపు ఆగుతుంది.",missed:"స్క్రీన్ ఆఫ్ అయింది. కొన్ని విజిల్స్ మిస్ అయి ఉండవచ్చు — లెక్క చూడండి.",tip:"ఫోన్‌ను కుక్కర్ దగ్గర, ఫ్యాన్‌కు దూరంగా ఉంచండి.",close:"మూసివేయి"},
-ml:{title:"കുക്കർ വിസിൽ കൗണ്ടർ",tabW:"വിസിൽ",tabT:"ടൈമർ",settings:"ക്രമീകരണങ്ങൾ",language:"ഭാഷ",target:"വേണ്ട വിസിലുകൾ",backup:"ബാക്കപ്പ് ടൈമർ (മിനിറ്റ്, 0 = ഓഫ്)",minutes:"മിനിറ്റ്",seconds:"സെക്കൻഡ്",start:"തുടങ്ങുക",stop:"നിർത്തുക",listening:"വിസിലിനായി കേൾക്കുന്നു…",idle:"തയ്യാർ",micLevel:"മൈക്ക് നില",sens:"സംവേദനക്ഷമത",testMic:"മൈക്ക് പരിശോധിക്കുക",audio:"അലേർട്ട് ഓഡിയോ",choose:"ഓഡിയോ ഫയൽ തിരഞ്ഞെടുക്കുക",removeAudio:"നീക്കം ചെയ്യുക",defaultBeep:"സാധാരണ ബീപ്",test:"അലേർട്ട് പരിശോധിക്കുക",pre:"അവസാന വിസിലിന് മുമ്പ് ബീപ്",vib:"വൈബ്രേറ്റ്",awake:"സ്ക്രീൻ ഓണാക്കി വയ്ക്കുക",repeat:"നിർത്തുന്നതുവരെ 30 സെക്കൻഡിൽ ആവർത്തിക്കുക",presets:"പ്രീസെറ്റുകൾ",save:"പ്രീസെറ്റ് സേവ് ചെയ്യുക",name:"പ്രീസെറ്റ് പേര്",doneW:"വിസിലുകൾ പൂർത്തിയായി! ഗ്യാസ് ഓഫ് ചെയ്യൂ.",doneT:"സമയം കഴിഞ്ഞു!",stopAlarm:"അലാറം നിർത്തുക",micDenied:"മൈക്രോഫോൺ തടഞ്ഞിരിക്കുന്നു. Chrome സൈറ്റ് ക്രമീകരണത്തിൽ അനുവദിക്കുക.",keepOpen:"ഈ സ്ക്രീൻ തുറന്നു വയ്ക്കുക. സ്ക്രീൻ ഓഫ് ആയാൽ എണ്ണൽ നിൽക്കും.",missed:"സ്ക്രീൻ ഓഫ് ആയിരുന്നു. ചില വിസിലുകൾ നഷ്ടമായിരിക്കാം — എണ്ണം പരിശോധിക്കുക.",tip:"ഫോൺ കുക്കറിനടുത്ത്, ഫാനിൽ നിന്ന് അകലെ വയ്ക്കുക.",close:"അടയ്ക്കുക"},
-kn:{title:"ಕುಕ್ಕರ್ ಸೀಟಿ ಕೌಂಟರ್",tabW:"ಸೀಟಿ",tabT:"ಟೈಮರ್",settings:"ಸೆಟ್ಟಿಂಗ್ಸ್",language:"ಭಾಷೆ",target:"ಬೇಕಾದ ಸೀಟಿಗಳು",backup:"ಬ್ಯಾಕಪ್ ಟೈಮರ್ (ನಿಮಿಷ, 0 = ಆಫ್)",minutes:"ನಿಮಿಷ",seconds:"ಸೆಕೆಂಡ್",start:"ಪ್ರಾರಂಭಿಸಿ",stop:"ನಿಲ್ಲಿಸಿ",listening:"ಸೀಟಿಗಾಗಿ ಕೇಳುತ್ತಿದೆ…",idle:"ಸಿದ್ಧ",micLevel:"ಮೈಕ್ ಮಟ್ಟ",sens:"ಸಂವೇದನೆ",testMic:"ಮೈಕ್ ಪರೀಕ್ಷಿಸಿ",audio:"ಅಲರ್ಟ್ ಆಡಿಯೋ",choose:"ಆಡಿಯೋ ಫೈಲ್ ಆರಿಸಿ",removeAudio:"ತೆಗೆಯಿರಿ",defaultBeep:"ಡೀಫಾಲ್ಟ್ ಬೀಪ್",test:"ಅಲರ್ಟ್ ಪರೀಕ್ಷಿಸಿ",pre:"ಕೊನೆಯ ಸೀಟಿಗೆ ಮೊದಲು ಬೀಪ್",vib:"ಕಂಪನ",awake:"ಪರದೆ ಆನ್ ಆಗಿರಲಿ",repeat:"ನಿಲ್ಲಿಸುವವರೆಗೆ ಪ್ರತಿ 30 ಸೆಕೆಂಡ್‌ಗೆ ಪುನರಾವರ್ತಿಸಿ",presets:"ಪ್ರೀಸೆಟ್‌ಗಳು",save:"ಪ್ರೀಸೆಟ್ ಉಳಿಸಿ",name:"ಪ್ರೀಸೆಟ್ ಹೆಸರು",doneW:"ಸೀಟಿಗಳು ಮುಗಿದವು! ಗ್ಯಾಸ್ ಆಫ್ ಮಾಡಿ.",doneT:"ಸಮಯ ಮುಗಿಯಿತು!",stopAlarm:"ಅಲಾರಂ ನಿಲ್ಲಿಸಿ",micDenied:"ಮೈಕ್ರೋಫೋನ್ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. Chrome ಸೈಟ್ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಅನುಮತಿಸಿ.",keepOpen:"ಈ ಪರದೆ ತೆರೆದಿಡಿ. ಪರದೆ ಆಫ್ ಆದರೆ ಎಣಿಕೆ ನಿಲ್ಲುತ್ತದೆ.",missed:"ಪರದೆ ಆಫ್ ಆಗಿತ್ತು. ಕೆಲವು ಸೀಟಿಗಳು ತಪ್ಪಿರಬಹುದು — ಎಣಿಕೆ ಪರಿಶೀಲಿಸಿ.",tip:"ಫೋನನ್ನು ಕುಕ್ಕರ್ ಹತ್ತಿರ, ಫ್ಯಾನ್‌ನಿಂದ ದೂರ ಇಡಿ.",close:"ಮುಚ್ಚಿ"}
+en:{title:"Cooker Whistle Counter",tabW:"Whistles",tabT:"Timer",settings:"Settings",language:"Language",target:"Whistles needed",backup:"Backup timer (minutes, 0 = off)",minutes:"Minutes",seconds:"Seconds",start:"Start",stop:"Stop",listening:"Listening for whistles…",idle:"Ready",micLevel:"Mic level",sens:"Sensitivity",testMic:"Test mic",audio:"Alert audio",choose:"Choose audio file",removeAudio:"Remove",defaultBeep:"Default beep",test:"Test alert",pre:"Beep before the last whistle",vib:"Vibrate",awake:"Keep screen on",repeat:"Repeat alert every 30 s until stopped",presets:"Presets",save:"Save preset",name:"Preset name",doneW:"Whistles done! Turn off the gas.",doneT:"Time's up!",stopAlarm:"Stop alarm",micDenied:"Microphone blocked. Allow it in Chrome site settings.",keepOpen:"Keep this screen open. Counting pauses if the screen turns off.",missed:"Screen was off. Some whistles may be missed — check the count.",tip:"Keep the phone near the cooker, away from fans.",close:"Close",learn:"Learn my whistle",learnQuiet:"Stay quiet for 2 seconds…",learnNow:"Now let the cooker whistle, then tap Done",doneBtn:"Done",learnOk:"Whistle learned ✓",learnFail:"Didn't hear a clear whistle. Try again, closer to the cooker.",forget:"Forget",learnedOn:"Using your learned whistle"},
+ta:{title:"குக்கர் விசில் எண்ணி",tabW:"விசில்",tabT:"டைமர்",settings:"அமைப்புகள்",language:"மொழி",target:"தேவையான விசில்கள்",backup:"காப்பு டைமர் (நிமிடம், 0 = இல்லை)",minutes:"நிமிடம்",seconds:"வினாடி",start:"தொடங்கு",stop:"நிறுத்து",listening:"விசிலுக்காகக் கேட்கிறது…",idle:"தயார்",micLevel:"மைக் அளவு",sens:"உணர்திறன்",testMic:"மைக் சோதி",audio:"அலாரம் ஒலி",choose:"ஆடியோ கோப்பைத் தேர்வு செய்",removeAudio:"நீக்கு",defaultBeep:"இயல்புநிலை பீப்",test:"அலாரம் சோதி",pre:"கடைசி விசிலுக்கு முன் பீப்",vib:"அதிர்வு",awake:"திரையை இயக்கத்தில் வை",repeat:"நிறுத்தும் வரை 30 வினாடிக்கு ஒருமுறை ஒலி",presets:"முன்னமைவுகள்",save:"முன்னமைவைச் சேமி",name:"பெயர்",doneW:"விசில் முடிந்தது! கேஸை அணைக்கவும்.",doneT:"நேரம் முடிந்தது!",stopAlarm:"அலாரத்தை நிறுத்து",micDenied:"மைக் தடுக்கப்பட்டுள்ளது. Chrome தள அமைப்புகளில் அனுமதிக்கவும்.",keepOpen:"இந்தத் திரையைத் திறந்தே வைக்கவும். திரை அணைந்தால் எண்ணுவது நிற்கும்.",missed:"திரை அணைந்திருந்தது. சில விசில்கள் விடுபட்டிருக்கலாம் — எண்ணிக்கையைச் சரிபார்க்கவும்.",tip:"போனை குக்கர் அருகில், மின்விசிறியிலிருந்து தள்ளி வைக்கவும்.",close:"மூடு",learn:"என் விசிலைக் கற்றுக்கொள்",learnQuiet:"2 வினாடி அமைதியாக இருங்கள்…",learnNow:"இப்போது குக்கரை விசிலடிக்க விடுங்கள், பிறகு முடிந்தது அழுத்தவும்",doneBtn:"முடிந்தது",learnOk:"விசில் கற்றுக்கொள்ளப்பட்டது ✓",learnFail:"தெளிவான விசில் கேட்கவில்லை. குக்கர் அருகில் மீண்டும் முயற்சிக்கவும்.",forget:"மறந்துவிடு",learnedOn:"கற்றுக்கொண்ட விசில் பயன்படுத்தப்படுகிறது"},
+hi:{title:"कुकर सीटी काउंटर",tabW:"सीटी",tabT:"टाइमर",settings:"सेटिंग्स",language:"भाषा",target:"कितनी सीटी चाहिए",backup:"बैकअप टाइमर (मिनट, 0 = बंद)",minutes:"मिनट",seconds:"सेकंड",start:"शुरू करें",stop:"रोकें",listening:"सीटी सुन रहा है…",idle:"तैयार",micLevel:"माइक स्तर",sens:"संवेदनशीलता",testMic:"माइक जाँचें",audio:"अलर्ट ऑडियो",choose:"ऑडियो फ़ाइल चुनें",removeAudio:"हटाएँ",defaultBeep:"डिफ़ॉल्ट बीप",test:"अलर्ट जाँचें",pre:"आख़िरी सीटी से पहले बीप",vib:"कंपन",awake:"स्क्रीन चालू रखें",repeat:"बंद करने तक हर 30 सेकंड में दोहराएँ",presets:"प्रीसेट",save:"प्रीसेट सहेजें",name:"प्रीसेट का नाम",doneW:"सीटियाँ पूरी! गैस बंद करें।",doneT:"समय पूरा!",stopAlarm:"अलार्म बंद करें",micDenied:"माइक्रोफ़ोन ब्लॉक है। Chrome की साइट सेटिंग में अनुमति दें।",keepOpen:"यह स्क्रीन खुली रखें। स्क्रीन बंद होने पर गिनती रुक जाती है।",missed:"स्क्रीन बंद थी। कुछ सीटियाँ छूट सकती हैं — गिनती जाँचें।",tip:"फ़ोन कुकर के पास रखें, पंखे से दूर।",close:"बंद करें",learn:"मेरी सीटी सीखें",learnQuiet:"2 सेकंड शांत रहें…",learnNow:"अब कुकर को सीटी बजाने दें, फिर पूरा हुआ दबाएँ",doneBtn:"पूरा हुआ",learnOk:"सीटी सीख ली ✓",learnFail:"साफ़ सीटी नहीं सुनाई दी। कुकर के पास दोबारा कोशिश करें।",forget:"भूल जाएँ",learnedOn:"सीखी हुई सीटी का उपयोग हो रहा है"},
+te:{title:"కుక్కర్ విజిల్ కౌంటర్",tabW:"విజిల్",tabT:"టైమర్",settings:"సెట్టింగ్స్",language:"భాష",target:"కావలసిన విజిల్స్",backup:"బ్యాకప్ టైమర్ (నిమిషాలు, 0 = ఆఫ్)",minutes:"నిమిషాలు",seconds:"సెకన్లు",start:"ప్రారంభించు",stop:"ఆపు",listening:"విజిల్ కోసం వింటోంది…",idle:"సిద్ధం",micLevel:"మైక్ స్థాయి",sens:"సున్నితత్వం",testMic:"మైక్ పరీక్షించు",audio:"అలర్ట్ ఆడియో",choose:"ఆడియో ఫైల్ ఎంచుకోండి",removeAudio:"తొలగించు",defaultBeep:"డిఫాల్ట్ బీప్",test:"అలర్ట్ పరీక్షించు",pre:"చివరి విజిల్ ముందు బీప్",vib:"వైబ్రేట్",awake:"స్క్రీన్ ఆన్‌లో ఉంచు",repeat:"ఆపే వరకు ప్రతి 30 సెకన్లకు పునరావృతం",presets:"ప్రీసెట్లు",save:"ప్రీసెట్ సేవ్ చేయి",name:"ప్రీసెట్ పేరు",doneW:"విజిల్స్ పూర్తయ్యాయి! గ్యాస్ ఆపండి.",doneT:"సమయం అయిపోయింది!",stopAlarm:"అలారం ఆపు",micDenied:"మైక్రోఫోన్ బ్లాక్ అయింది. Chrome సైట్ సెట్టింగ్స్‌లో అనుమతించండి.",keepOpen:"ఈ స్క్రీన్ తెరిచే ఉంచండి. స్క్రీన్ ఆఫ్ అయితే లెక్కింపు ఆగుతుంది.",missed:"స్క్రీన్ ఆఫ్ అయింది. కొన్ని విజిల్స్ మిస్ అయి ఉండవచ్చు — లెక్క చూడండి.",tip:"ఫోన్‌ను కుక్కర్ దగ్గర, ఫ్యాన్‌కు దూరంగా ఉంచండి.",close:"మూసివేయి",learn:"నా విజిల్ నేర్చుకో",learnQuiet:"2 సెకన్లు నిశ్శబ్దంగా ఉండండి…",learnNow:"ఇప్పుడు కుక్కర్‌ను విజిల్ వేయనివ్వండి, తర్వాత పూర్తయింది నొక్కండి",doneBtn:"పూర్తయింది",learnOk:"విజిల్ నేర్చుకుంది ✓",learnFail:"స్పష్టమైన విజిల్ వినపడలేదు. కుక్కర్ దగ్గర మళ్లీ ప్రయత్నించండి.",forget:"మర్చిపో",learnedOn:"నేర్చుకున్న విజిల్ వాడుతోంది"},
+ml:{title:"കുക്കർ വിസിൽ കൗണ്ടർ",tabW:"വിസിൽ",tabT:"ടൈമർ",settings:"ക്രമീകരണങ്ങൾ",language:"ഭാഷ",target:"വേണ്ട വിസിലുകൾ",backup:"ബാക്കപ്പ് ടൈമർ (മിനിറ്റ്, 0 = ഓഫ്)",minutes:"മിനിറ്റ്",seconds:"സെക്കൻഡ്",start:"തുടങ്ങുക",stop:"നിർത്തുക",listening:"വിസിലിനായി കേൾക്കുന്നു…",idle:"തയ്യാർ",micLevel:"മൈക്ക് നില",sens:"സംവേദനക്ഷമത",testMic:"മൈക്ക് പരിശോധിക്കുക",audio:"അലേർട്ട് ഓഡിയോ",choose:"ഓഡിയോ ഫയൽ തിരഞ്ഞെടുക്കുക",removeAudio:"നീക്കം ചെയ്യുക",defaultBeep:"സാധാരണ ബീപ്",test:"അലേർട്ട് പരിശോധിക്കുക",pre:"അവസാന വിസിലിന് മുമ്പ് ബീപ്",vib:"വൈബ്രേറ്റ്",awake:"സ്ക്രീൻ ഓണാക്കി വയ്ക്കുക",repeat:"നിർത്തുന്നതുവരെ 30 സെക്കൻഡിൽ ആവർത്തിക്കുക",presets:"പ്രീസെറ്റുകൾ",save:"പ്രീസെറ്റ് സേവ് ചെയ്യുക",name:"പ്രീസെറ്റ് പേര്",doneW:"വിസിലുകൾ പൂർത്തിയായി! ഗ്യാസ് ഓഫ് ചെയ്യൂ.",doneT:"സമയം കഴിഞ്ഞു!",stopAlarm:"അലാറം നിർത്തുക",micDenied:"മൈക്രോഫോൺ തടഞ്ഞിരിക്കുന്നു. Chrome സൈറ്റ് ക്രമീകരണത്തിൽ അനുവദിക്കുക.",keepOpen:"ഈ സ്ക്രീൻ തുറന്നു വയ്ക്കുക. സ്ക്രീൻ ഓഫ് ആയാൽ എണ്ണൽ നിൽക്കും.",missed:"സ്ക്രീൻ ഓഫ് ആയിരുന്നു. ചില വിസിലുകൾ നഷ്ടമായിരിക്കാം — എണ്ണം പരിശോധിക്കുക.",tip:"ഫോൺ കുക്കറിനടുത്ത്, ഫാനിൽ നിന്ന് അകലെ വയ്ക്കുക.",close:"അടയ്ക്കുക",learn:"എന്റെ വിസിൽ പഠിക്കുക",learnQuiet:"2 സെക്കൻഡ് നിശ്ശബ്ദമായിരിക്കൂ…",learnNow:"ഇനി കുക്കർ വിസിൽ അടിക്കട്ടെ, എന്നിട്ട് കഴിഞ്ഞു അമർത്തൂ",doneBtn:"കഴിഞ്ഞു",learnOk:"വിസിൽ പഠിച്ചു ✓",learnFail:"വ്യക്തമായ വിസിൽ കേട്ടില്ല. കുക്കറിനടുത്ത് വീണ്ടും ശ്രമിക്കൂ.",forget:"മറക്കുക",learnedOn:"പഠിച്ച വിസിൽ ഉപയോഗിക്കുന്നു"},
+kn:{title:"ಕುಕ್ಕರ್ ಸೀಟಿ ಕೌಂಟರ್",tabW:"ಸೀಟಿ",tabT:"ಟೈಮರ್",settings:"ಸೆಟ್ಟಿಂಗ್ಸ್",language:"ಭಾಷೆ",target:"ಬೇಕಾದ ಸೀಟಿಗಳು",backup:"ಬ್ಯಾಕಪ್ ಟೈಮರ್ (ನಿಮಿಷ, 0 = ಆಫ್)",minutes:"ನಿಮಿಷ",seconds:"ಸೆಕೆಂಡ್",start:"ಪ್ರಾರಂಭಿಸಿ",stop:"ನಿಲ್ಲಿಸಿ",listening:"ಸೀಟಿಗಾಗಿ ಕೇಳುತ್ತಿದೆ…",idle:"ಸಿದ್ಧ",micLevel:"ಮೈಕ್ ಮಟ್ಟ",sens:"ಸಂವೇದನೆ",testMic:"ಮೈಕ್ ಪರೀಕ್ಷಿಸಿ",audio:"ಅಲರ್ಟ್ ಆಡಿಯೋ",choose:"ಆಡಿಯೋ ಫೈಲ್ ಆರಿಸಿ",removeAudio:"ತೆಗೆಯಿರಿ",defaultBeep:"ಡೀಫಾಲ್ಟ್ ಬೀಪ್",test:"ಅಲರ್ಟ್ ಪರೀಕ್ಷಿಸಿ",pre:"ಕೊನೆಯ ಸೀಟಿಗೆ ಮೊದಲು ಬೀಪ್",vib:"ಕಂಪನ",awake:"ಪರದೆ ಆನ್ ಆಗಿರಲಿ",repeat:"ನಿಲ್ಲಿಸುವವರೆಗೆ ಪ್ರತಿ 30 ಸೆಕೆಂಡ್‌ಗೆ ಪುನರಾವರ್ತಿಸಿ",presets:"ಪ್ರೀಸೆಟ್‌ಗಳು",save:"ಪ್ರೀಸೆಟ್ ಉಳಿಸಿ",name:"ಪ್ರೀಸೆಟ್ ಹೆಸರು",doneW:"ಸೀಟಿಗಳು ಮುಗಿದವು! ಗ್ಯಾಸ್ ಆಫ್ ಮಾಡಿ.",doneT:"ಸಮಯ ಮುಗಿಯಿತು!",stopAlarm:"ಅಲಾರಂ ನಿಲ್ಲಿಸಿ",micDenied:"ಮೈಕ್ರೋಫೋನ್ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. Chrome ಸೈಟ್ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಅನುಮತಿಸಿ.",keepOpen:"ಈ ಪರದೆ ತೆರೆದಿಡಿ. ಪರದೆ ಆಫ್ ಆದರೆ ಎಣಿಕೆ ನಿಲ್ಲುತ್ತದೆ.",missed:"ಪರದೆ ಆಫ್ ಆಗಿತ್ತು. ಕೆಲವು ಸೀಟಿಗಳು ತಪ್ಪಿರಬಹುದು — ಎಣಿಕೆ ಪರಿಶೀಲಿಸಿ.",tip:"ಫೋನನ್ನು ಕುಕ್ಕರ್ ಹತ್ತಿರ, ಫ್ಯಾನ್‌ನಿಂದ ದೂರ ಇಡಿ.",close:"ಮುಚ್ಚಿ",learn:"ನನ್ನ ಸೀಟಿ ಕಲಿಯಿರಿ",learnQuiet:"2 ಸೆಕೆಂಡ್ ಸುಮ್ಮನಿರಿ…",learnNow:"ಈಗ ಕುಕ್ಕರ್ ಸೀಟಿ ಹೊಡೆಯಲಿ, ನಂತರ ಮುಗಿಯಿತು ಒತ್ತಿ",doneBtn:"ಮುಗಿಯಿತು",learnOk:"ಸೀಟಿ ಕಲಿಯಲಾಗಿದೆ ✓",learnFail:"ಸ್ಪಷ್ಟ ಸೀಟಿ ಕೇಳಲಿಲ್ಲ. ಕುಕ್ಕರ್ ಹತ್ತಿರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",forget:"ಮರೆತುಬಿಡಿ",learnedOn:"ಕಲಿತ ಸೀಟಿ ಬಳಕೆಯಲ್ಲಿದೆ"}
 };
 
 /* ---------- state & storage ---------- */
 const $=s=>document.querySelector(s);
-let S={lang:null,target:3,backup:0,sens:50,pre:true,vib:true,awake:true,repeat:false,audioName:"",pw:[],pt:[],tm:10,ts:0};
+let S={lang:null,target:3,backup:0,sens:50,pre:true,vib:true,awake:true,repeat:false,audioName:"",pw:[],pt:[],tm:10,ts:0,prof:null};
 try{Object.assign(S,JSON.parse(localStorage.getItem("cwc")||"{}"));}catch(e){}
 if(!S.lang||!T[S.lang]){const n=(navigator.language||"en").slice(0,2);S.lang=T[n]?n:"en";}
 function save(){try{localStorage.setItem("cwc",JSON.stringify(S));}catch(e){}}
@@ -196,12 +198,15 @@ class Detector{
   constructor(){this.reset();}
   reset(){this.floor=null;this.state=0;this.aboveSince=null;this.belowSince=null;this.burstStart=0;this.lastEnd=-1e9;}
   margin(sens){return 26-0.2*sens;}
-  feed(db,now,sens){
+  // ok = false when the sound does not match the learned whistle shape
+  feed(db,now,sens,ok){
+    if(ok===undefined)ok=true;
     if(this.floor===null)this.floor=db;
     const thresh=Math.max(this.floor+this.margin(sens),-75);
+    const above=db>thresh&&ok;
     let ev=null;
     if(this.state===0){
-      if(db>thresh){
+      if(above){
         if(this.aboveSince===null)this.aboveSince=now;
         if(now-this.aboveSince>=300){
           this.state=1;this.belowSince=null;this.burstStart=now;
@@ -209,10 +214,11 @@ class Detector{
         }
       }else{
         this.aboveSince=null;
-        this.floor+=(db>this.floor?0.01:0.1)*(db-this.floor);
+        const k=db>this.floor?(db>thresh?0.002:0.01):0.1;
+        this.floor+=k*(db-this.floor);
       }
     }else{
-      if(db<thresh-3){
+      if(db<thresh-3||!ok){
         if(this.belowSince===null)this.belowSince=now;
         if(now-this.belowSince>=500){this.state=0;this.lastEnd=now;this.aboveSince=null;this.belowSince=null;}
       }else{
@@ -220,14 +226,22 @@ class Detector{
         if(now-this.burstStart>40000){this.floor=db;this.state=0;this.lastEnd=now;this.aboveSince=null;}
       }
     }
-    return {ev,floor:this.floor,thresh};
+    return {ev,floor:this.floor,thresh,hot:above};
   }
 }
 /*DETECTOR_END*/
 const det=new Detector();
 
 /* ---------- microphone ---------- */
-const mic={ctx:null,stream:null,an:null,buf:null,timer:null,lo:0,hi:0};
+const NB=48,F0=500,F1=8000;
+const mic={ctx:null,stream:null,an:null,buf:null,timer:null,lo:0,hi:0,edges:[],hz:1};
+const L={active:false,phase:0,t0:0,t1:0,bg:[],fr:[],msg:""};
+function setBand(){
+  if(!mic.ctx)return;
+  const lo=S.prof?S.prof.lo:1500,hi=S.prof?S.prof.hi:6000;
+  mic.lo=Math.max(1,Math.floor(lo/mic.hz));
+  mic.hi=Math.max(mic.lo+1,Math.min(mic.buf.length-1,Math.ceil(hi/mic.hz)));
+}
 async function micStart(){
   if(mic.ctx&&mic.stream&&mic.stream.getTracks().every(k=>k.readyState==="live")){
     if(mic.ctx.state==="suspended")await mic.ctx.resume();
@@ -243,8 +257,13 @@ async function micStart(){
   mic.an=mic.ctx.createAnalyser();mic.an.fftSize=2048;mic.an.smoothingTimeConstant=0.2;
   src.connect(mic.an);
   mic.buf=new Float32Array(mic.an.frequencyBinCount);
-  const hz=mic.ctx.sampleRate/2048;mic.lo=Math.floor(1500/hz);mic.hi=Math.ceil(6000/hz);
-  det.reset();
+  mic.hz=mic.ctx.sampleRate/2048;
+  mic.edges=[];
+  for(let i=0;i<NB;i++){
+    const s=Math.round(F0*Math.pow(F1/F0,i/NB)/mic.hz),e=Math.round(F0*Math.pow(F1/F0,(i+1)/NB)/mic.hz);
+    mic.edges.push([s,Math.max(e,s+1)]);
+  }
+  setBand();det.reset();
   mic.timer=setInterval(micTick,50);
   return true;
 }
@@ -255,20 +274,106 @@ function micStop(){
   mic.ctx=mic.stream=mic.an=null;
   $("#mbar").style.width="0";
 }
-function micRelease(){if(!W.running&&!testing)micStop();}
+function micRelease(){if(!W.running&&!testing&&!L.active)micStop();}
+
+/* spectral shape helpers (used by Learn my whistle) */
+function bandPowers(){
+  const out=new Float64Array(NB);
+  for(let i=0;i<NB;i++){const e=mic.edges[i];let p=0;for(let j=e[0];j<e[1];j++)p+=Math.pow(10,mic.buf[j]/10);out[i]=p/(e[1]-e[0]);}
+  return out;
+}
+function shapeOf(bp){
+  const v=new Float64Array(NB);let m=0;
+  for(let i=0;i<NB;i++){v[i]=10*Math.log10(bp[i]+1e-14);m+=v[i];}
+  m/=NB;let n=0;
+  for(let i=0;i<NB;i++){v[i]-=m;n+=v[i]*v[i];}
+  n=Math.sqrt(n)||1;
+  for(let i=0;i<NB;i++)v[i]/=n;
+  return v;
+}
+function corr(bp){const v=shapeOf(bp),p=S.prof.shape;let d=0;for(let i=0;i<NB;i++)d+=v[i]*p[i];return d;}
+
 function micTick(){
   if(!mic.an)return;
   mic.an.getFloatFrequencyData(mic.buf);
+  const now=performance.now();
   let s=0,n=0;
   for(let i=mic.lo;i<=mic.hi;i++){s+=Math.pow(10,mic.buf[i]/10);n++;}
   const db=10*Math.log10(s/n+1e-12);
-  const r=det.feed(db,performance.now(),S.sens);
+  const bp=(S.prof||L.active)?bandPowers():null;
+  if(L.active)learnFeed(bp,now);
+  const ok=(S.prof&&!L.active)?corr(bp)>=(0.75-0.003*S.sens):true;
+  const r=det.feed(db,now,S.sens,ok);
   const lvl=Math.max(0,Math.min(1,(db-r.floor)/40));
   $("#mbar").style.width=(lvl*100)+"%";
-  $("#mbar").classList.toggle("hot",db>r.thresh);
+  $("#mbar").classList.toggle("hot",r.hot);
   $("#mthr").style.left=Math.min(100,((r.thresh-r.floor)/40)*100)+"%";
   if(r.ev&&W.running)addWhistle(1);
 }
+
+/* ---------- learn my whistle ---------- */
+function learnFeed(bp,now){
+  const lv=10*Math.log10(bp.reduce((a,b)=>a+b,0)/NB+1e-14);
+  if(L.phase===0){
+    L.bg.push(bp);
+    if(now-L.t0>=2000){L.phase=1;L.t1=now;beep(1,880,0.15,0);if(navigator.vibrate)navigator.vibrate(100);renderLearn();}
+  }else{
+    L.fr.push({bp,lv});
+    if(now-L.t1>30000)learnDone();
+  }
+}
+function avgBands(arr){
+  const o=new Float64Array(NB);
+  arr.forEach(b=>{for(let i=0;i<NB;i++)o[i]+=b[i];});
+  for(let i=0;i<NB;i++)o[i]/=arr.length;
+  return o;
+}
+function analyse(){
+  if(L.bg.length<10||L.fr.length<10)return false;
+  const bg=avgBands(L.bg);
+  const bgLv=10*Math.log10(bg.reduce((a,b)=>a+b,0)/NB+1e-14);
+  const hot=L.fr.filter(f=>f.lv>bgLv+8).map(f=>f.bp);
+  if(hot.length<10)return false;
+  const hp=avgBands(hot);
+  const sig=new Float64Array(NB);
+  for(let i=0;i<NB;i++)sig[i]=Math.max(hp[i]-bg[i],hp[i]*0.02);
+  const db=Array.from(sig,x=>10*Math.log10(x+1e-14));
+  const mx=Math.max.apply(null,db);
+  let a=-1,b=-1;
+  db.forEach((x,i)=>{if(x>=mx-12){if(a<0)a=i;b=i;}});
+  a=Math.max(0,a-1);b=Math.min(NB-1,b+1);
+  const f=i=>F0*Math.pow(F1/F0,i/NB);
+  S.prof={shape:Array.from(shapeOf(sig)),lo:Math.round(f(a)),hi:Math.round(f(b+1))};
+  save();setBand();det.reset();
+  return true;
+}
+async function learnStart(){
+  if(W.running)return;
+  getB();
+  if(!(await micStart()))return;
+  L.active=true;L.phase=0;L.t0=performance.now();L.bg=[];L.fr=[];L.msg="";
+  renderLearn();
+}
+function learnDone(){
+  L.active=false;
+  const ok=analyse();
+  L.msg=tr(ok?"learnOk":"learnFail");
+  micRelease();renderLearn();
+  setTimeout(()=>{L.msg="";renderLearn();},4000);
+}
+function renderLearn(){
+  const b=$("#learn"),st=$("#learnSt");
+  $("#forget").hidden=!(S.prof&&!L.active);
+  if(L.active){
+    b.textContent=tr("doneBtn");b.disabled=L.phase===0;
+    st.textContent=tr(L.phase===0?"learnQuiet":"learnNow");
+  }else{
+    b.textContent=tr("learn");b.disabled=false;
+    st.textContent=L.msg||(S.prof?tr("learnedOn"):"");
+  }
+}
+$("#learn").onclick=()=>{L.active?learnDone():learnStart();};
+$("#forget").onclick=()=>{S.prof=null;save();setBand();det.reset();renderLearn();};
 
 /* ---------- sound: beeps + custom audio ---------- */
 let bctx=null,bnodes=[],audioUrl=null;
@@ -443,7 +548,7 @@ function applyLang(){
   document.querySelectorAll("[data-ip]").forEach(e=>e.placeholder=tr(e.dataset.ip));
   document.title=tr("title");
   $("#testMic").textContent=tr("testMic");
-  renderAudioName();renderW();renderT();
+  renderAudioName();renderW();renderT();renderLearn();
 }
 $("#gear").onclick=()=>{$("#sheet").classList.add("show");};
 $("#closeSheet").onclick=()=>{$("#sheet").classList.remove("show");};
